@@ -39,3 +39,7 @@
 # Bear/clangd
 .cache/
 compile_commands.json
+
+# Build and Executables
+build/
+lox++
