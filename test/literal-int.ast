@@ -1,0 +1,3 @@
+(literal/int
+  (type int)
+  (value 42))
