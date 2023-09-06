@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Editor Files
+#*
+*~
+*.swp
+
+# Bear/clangd
+.cache/
+compile_commands.json
