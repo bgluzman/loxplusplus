@@ -29,6 +29,7 @@ private:
 
   void addToken(TokenType type);
   void addToken(TokenType type, std::optional<long> literal);
+  void addTokenEOF();
 
   std::string_view source_;
 
@@ -48,6 +49,14 @@ inline void Scanner::addToken(TokenType type, std::optional<long> literal) {
       .lexeme = text,
       .line = line_,
       .literal = literal,
+  });
+}
+
+inline void Scanner::addTokenEOF() {
+  tokens_.emplace_back(Token{
+      .type = TokenType::END_OF_FILE,
+      .lexeme = std::string_view{},
+      .line = -1,
   });
 }
 

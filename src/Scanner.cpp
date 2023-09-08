@@ -3,23 +3,18 @@
 #include "Platform.hpp"
 #include "TokenType.hpp"
 
-#include <stdexcept>
-
 namespace lox {
 
 Scanner::Scanner(std::string_view source) : source_(source) {}
 
 std::span<const Token> Scanner::scanTokens() {
+  tokens_.clear();
   while (!isAtEnd()) {
     // We are the beginning of the next lexeme.
     start_ = current_;
     scanToken();
   }
-  tokens_.emplace_back(Token{
-      .type = TokenType::END_OF_FILE,
-      .lexeme = std::string_view{},
-      .line = -1,
-  });
+  addTokenEOF();
   return tokens_;
 }
 
@@ -91,7 +86,7 @@ void Scanner::number() {
 
   if (peek() == '.') {
     // TODO (bgluzman): implement double support
-    throw std::runtime_error{"double literals not implemented."};
+    error(line_, "Double literals not implemented");
   } else {
     auto text = source_.substr(start_, current_ - start_);
     auto val = parseNumber<long>(text);
