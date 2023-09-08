@@ -17,7 +17,7 @@ $(BUILD)/%.o: %.cpp $(DEPS) | $(BUILD)
 	@mkdir -p $(@D)
 	$(CXX) -MMD $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
--include $(shell find . -path $(BUILD)/*/*.d)
+-include $(shell find . -path $(BUILD)/*.d)
 
 $(BUILD):
 	@mkdir -p $@
