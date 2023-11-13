@@ -6,3 +6,6 @@ AlignConsecutiveDeclarations:
   Enabled: true
 AlignConsecutiveMacros:
   Enabled: true
+SpacesBeforeTrailingComments: 2
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive
