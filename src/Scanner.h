@@ -16,9 +16,9 @@ public:
   static std::expected<Scanner, CompilationError>
   construct(std::string_view source);
 
-  bool  isAtEnd() const;
-  Token peek() const;
-  Token previous() const;
+  [[nodiscard]] bool  isAtEnd() const;
+  [[nodiscard]] Token peek() const;
+  [[nodiscard]] Token previous() const;
 
   Token advance();
 

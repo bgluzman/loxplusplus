@@ -2,7 +2,6 @@
 #include "Token.h"
 
 #include <iostream>
-#include <optional>
 
 using namespace loxpp;
 

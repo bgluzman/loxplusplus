@@ -28,15 +28,15 @@ public:
 private:
   void scanToken();
 
-  bool isAtEnd() const noexcept;
-  char advance();
-  bool match(char expected);
-  char peek() const;
-  char peekNext() const;
+  [[nodiscard]] bool isAtEnd() const noexcept;
+  char               advance();
+  [[nodiscard]] bool match(char expected);
+  [[nodiscard]] char peek() const;
+  [[nodiscard]] char peekNext() const;
 
-  bool isDigit(char c) const;
-  bool isAlpha(char c) const;
-  bool isAlphaNumeric(char c) const;
+  [[nodiscard]] bool isDigit(char c) const;
+  [[nodiscard]] bool isAlpha(char c) const;
+  [[nodiscard]] bool isAlphaNumeric(char c) const;
 
   void string();
   void number();
@@ -196,7 +196,6 @@ void ScannerImpl::string() {
 
   if (isAtEnd()) {
     throw CompilationError(line_, "Unterminated string.");
-    return;
   }
 
   // The closing ".
