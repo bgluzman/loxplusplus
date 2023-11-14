@@ -5,6 +5,7 @@
 
 #include <deque>
 #include <expected>
+#include <optional>
 #include <stdexcept>
 #include <string_view>
 
@@ -16,9 +17,9 @@ public:
   static std::expected<Scanner, CompilationError>
   construct(std::string_view source);
 
-  [[nodiscard]] bool  isAtEnd() const;
-  [[nodiscard]] Token peek() const;
-  [[nodiscard]] Token previous() const;
+  [[nodiscard]] bool                 isAtEnd() const;
+  [[nodiscard]] Token                peek() const;
+  [[nodiscard]] std::optional<Token> previous() const;
 
   Token advance();
 

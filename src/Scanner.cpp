@@ -2,6 +2,7 @@
 
 #include "CompilationError.h"
 
+#include <cassert>
 #include <charconv>
 #include <unordered_map>
 
@@ -262,17 +263,36 @@ Scanner::construct(std::string_view source) try {
 }
 
 bool Scanner::isAtEnd() const {
-  return (tokens_it_ == tokens_.end()) || peek().type == TokenType::END_OF_FILE;
+  // NOTE: We should never be able to move `tokens_it_` past the end of the
+  //  deque since:
+  //  1. `tokens_` is guaranteed to have at least the EOF token by its
+  //     construction (see `ScannerImpl::scanTokens()`).
+  //  2. `advance()` is the only function that advances `tokens_it_` and
+  //     internally it checks `!isAtEnd()` before advancing the iterator.
+  //  3. `isAtEnd()` returns true for the EOF token (which, by (2), blocks
+  //     `advance()` from advancing `tokens_it_` to `tokens_.end()`).
+  //  Therefore, we can turn this check off for non-debug builds since we
+  //  reason `Scanner` has this property as an invariant.
+  assert(tokens_it_ != tokens_.end());
+  return peek().type == TokenType::END_OF_FILE;
 }
 
 Token Scanner::peek() const { return *tokens_it_; }
 
-Token Scanner::previous() const { return *std::prev(tokens_it_); }
+std::optional<Token> Scanner::previous() const {
+  if (tokens_it_ == tokens_.begin())
+    return std::nullopt;
+  return *std::prev(tokens_it_);
+}
 
 Token Scanner::advance() {
+  // This is always safe to dereference since EOF token is always present and
+  // `advance()` cannot `tokens_it_` past that element. See comment in
+  // `isAtEnd()` for details.
+  Token token = *tokens_it_;
   if (!isAtEnd())
     ++tokens_it_;
-  return previous();
+  return token;
 }
 
 Scanner::Scanner(std::deque<Token> tokens)
