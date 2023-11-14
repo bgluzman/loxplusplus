@@ -16,4 +16,6 @@ add_executable(
         src/TokenType.h
         src/Value.cpp
         src/Value.h
+        src/CompilationError.cpp
+        src/CompilationError.h
 )
