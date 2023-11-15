@@ -9,10 +9,10 @@
 namespace loxpp {
 
 struct Token {
-  TokenType            type;
-  std::string_view     lexeme = {};
-  std::optional<Value> literal = std::nullopt;
-  int                  line = -1;
+  TokenType              type;
+  std::string_view       lexeme = {};
+  std::optional<Literal> literal = std::nullopt;
+  int                    line = -1;
 };
 
 std::ostream& operator<<(std::ostream& os, const Token& token);

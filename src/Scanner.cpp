@@ -44,7 +44,7 @@ private:
   void identifier();
 
   void addToken(TokenType type);
-  void addToken(TokenType type, Value literal);
+  void addToken(TokenType type, Literal literal);
 
   std::string_view source_;
 
@@ -247,7 +247,7 @@ void ScannerImpl::identifier() {
 
 void ScannerImpl::addToken(TokenType type) { addToken(type, std::monostate{}); }
 
-void ScannerImpl::addToken(TokenType type, Value literal) {
+void ScannerImpl::addToken(TokenType type, Literal literal) {
   auto text = source_.substr(start_, current_ - start_);
   tokens_.emplace_back(type, text, literal, line_);
 }
