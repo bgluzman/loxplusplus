@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Literal.h"
 #include "TokenType.h"
-#include "Value.h"
 
 #include <optional>
 #include <ostream>
