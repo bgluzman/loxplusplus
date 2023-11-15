@@ -5,7 +5,6 @@
 
 namespace loxpp {
 
-// TODO (bgluzman): rename this to literal since we use string_view?
-using Value = std::variant<std::monostate, double, std::string_view>;
+using Literal = std::variant<std::monostate, double, std::string_view>;
 
 }  // namespace loxpp
