@@ -224,7 +224,7 @@ void ScannerImpl::number() {
 
   // TODO (bgluzman): use std::from_chars once supported by libstdc++ on MacOS.
   // Attempt to parse number from lexeme.
-  double number = 0.0;
+  double           number = 0.0;
   std::string_view text = source_.substr(start_, current_ - start_);
   try {
     number = std::stod(std::string{text});
@@ -298,6 +298,8 @@ Token Scanner::advance() {
     ++tokens_it_;
   return token;
 }
+
+void Scanner::reset() { tokens_it_ = tokens_.begin(); }
 
 Scanner::Scanner(std::deque<Token> tokens)
     : tokens_(std::move(tokens)), tokens_it_(tokens_.begin()) {}

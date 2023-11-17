@@ -20,4 +20,6 @@ add_executable(
         src/CompilationError.h
         src/Ast.cpp
         src/Ast.h
+        src/Parser.cpp
+        src/Parser.h
 )

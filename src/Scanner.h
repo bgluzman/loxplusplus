@@ -22,6 +22,7 @@ public:
   [[nodiscard]] std::optional<Token> previous() const;
 
   Token advance();
+  void  reset();
 
 private:
   explicit Scanner(std::deque<Token> tokens);
