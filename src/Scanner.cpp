@@ -222,13 +222,17 @@ void ScannerImpl::number() {
       advance();
   }
 
+  // TODO (bgluzman): use std::from_chars once supported by libstdc++ on MacOS.
   // Attempt to parse number from lexeme.
-  double           number = 0.0;
+  double number = 0.0;
   std::string_view text = source_.substr(start_, current_ - start_);
-  auto [_, ec] =
-      std::from_chars(text.data(), text.data() + text.size(), number);
-  if (ec != std::errc())
+  try {
+    number = std::stod(std::string{text});
+  } catch (const std::invalid_argument&) {
     throw CompilationError(line_, "Unable to scan number.");
+  } catch (const std::out_of_range&) {
+    throw CompilationError(line_, "Number out of range.");
+  }
 
   addToken(TokenType::NUMBER, number);
 }
