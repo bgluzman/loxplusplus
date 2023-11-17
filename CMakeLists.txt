@@ -18,4 +18,6 @@ add_executable(
         src/Literal.h
         src/CompilationError.cpp
         src/CompilationError.h
+        src/Ast.cpp
+        src/Ast.h
 )
