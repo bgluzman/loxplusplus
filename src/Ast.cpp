@@ -18,16 +18,14 @@ void parenthesize(std::ostream& os, std::string_view name,
 
 }  // namespace
 
-std::ostream& operator<<(std::ostream& os, const AstNode& node) {
-  std::visit(overloaded{[&os](const Binary& binary) {
-                          parenthesize(os, binary.op.lexeme,
-                                       {binary.left.get(), binary.right.get()});
-                        },
-                        [&os](const Literal& literal) {
-                          os << "(lit " << literal << ')';
-                        }},
-             node);
+std::ostream& operator<<(std::ostream& os, const Binary& binary) {
+  parenthesize(os, binary.op.lexeme, {binary.left.get(), binary.right.get()});
   return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const AstNode& node) {
+  return std::visit([&os](auto&& node) -> std::ostream& { return os << node; },
+                    node);
 }
 
 }  // namespace loxpp
