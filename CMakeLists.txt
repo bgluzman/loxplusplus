@@ -28,6 +28,8 @@ add_executable(
         src/Ast.h
         src/Parser.cpp
         src/Parser.h
+        src/CodeGenerator.cpp
+        src/CodeGenerator.h
 )
 target_include_directories(lox++ PRIVATE ${LLVM_INCLUDE_DIRS})
 target_link_libraries(lox++ PRIVATE ${llvm_libs})

@@ -1,3 +1,4 @@
+#include "CodeGenerator.h"
 #include "Parser.h"
 #include "Scanner.h"
 #include "Token.h"
@@ -26,7 +27,14 @@ int main(int /*argc*/, char * /*argv*/[]) {
     parse_result.error().report();
     return -1;
   }
-  std::cout << **parse_result;
+  std::cout << **parse_result << '\n' << std::flush;
+
+  CodeGenerator codeGen;
+  codeGen.generate(*parse_result).value()->print(llvm::outs());
+
+  // TODO (bgluzman): doesn't really do anything yet since no definitions live
+  //  within the module at this point...
+  codeGen.print();
 
   return 0;
 }
