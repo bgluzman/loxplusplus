@@ -7,36 +7,33 @@ namespace loxpp {
 
 Parser::Parser(Scanner scanner) : scanner_(std::move(scanner)) {}
 
-Parser::ParseResult Parser::parse() { return plus(); }
-
-Parser::ParseResult Parser::plus() {
+std::expected<std::unique_ptr<AstNode>, CompilationError> Parser::parse() try {
   // TODO (bgluzman): STUB! REPLACE!!
-  ParseResult left_result = primary();
-  if (!left_result)
-    return left_result;
+  return plus();
+} catch (const CompilationError& err) {
+  return std::unexpected(err);
+}
 
-  std::unique_ptr<AstNode> left = std::move(left_result.value());
+std::unique_ptr<AstNode> Parser::plus() {
+  // TODO (bgluzman): STUB! REPLACE!!
+  std::unique_ptr<AstNode> left = primary();
   while (!scanner_.isAtEnd()) {
     if (!match({TokenType::PLUS}))
       // TODO (bgluzman): deref here is safe but just use helper from primary()
       //  anyway to simplify logic?
-      return std::unexpected(
-          CompilationError(*scanner_.previous(), "expected '+'"));
-
-    Token       op = *scanner_.previous();
-    ParseResult right_result = plus();
-    if (!right_result)
-      return right_result;
+      throw CompilationError(*scanner_.previous(), "expected '+'");
+    Token                    op = *scanner_.previous();
+    std::unique_ptr<AstNode> right = plus();
     left = std::make_unique<AstNode>(Binary{
         .left = std::move(left),
         .op = op,
-        .right = std::move(right_result.value()),
+        .right = std::move(right),
     });
   }
   return left;
 }
 
-Parser::ParseResult Parser::primary() {
+std::unique_ptr<AstNode> Parser::primary() {
   // TODO (bgluzman): STUB! REPLACE!!
   if (match({TokenType::NUMBER})) {
     // TODO (bgluzman): more error checking here?
@@ -47,7 +44,7 @@ Parser::ParseResult Parser::primary() {
   int line = scanner_.previous()
                  .transform([](const auto& prev) { return prev.line; })
                  .value_or(0);
-  return std::unexpected(CompilationError(line, "expected expression"));
+  throw CompilationError(line, "expected expression");
 }
 
 bool Parser::match(const std::initializer_list<TokenType>& types) {

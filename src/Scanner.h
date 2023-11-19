@@ -14,7 +14,7 @@ namespace loxpp {
 class Scanner {
 
 public:
-  [[nodiscard]] static CompilationResult<Scanner>
+  static std::expected<Scanner, CompilationError>
   construct(std::string_view source);
 
   [[nodiscard]] bool                 isAtEnd() const;

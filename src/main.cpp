@@ -21,18 +21,16 @@ int main(int /*argc*/, char * /*argv*/[]) {
 
   scanner->reset();
 
-  Parser              parser(std::move(*scanner));
-  Parser::ParseResult parse_result = parser.parse();
+  Parser parser(std::move(*scanner));
+  auto   parse_result = parser.parse();
   if (!parse_result) {
     parse_result.error().report();
     return -1;
   }
-
-  std::unique_ptr<AstNode> ast = std::move(parse_result.value());
-  std::cout << *ast << '\n' << std::flush;
+  std::cout << **parse_result << '\n' << std::flush;
 
   CodeGenerator codeGen;
-  codeGen.generate(ast).value()->print(llvm::outs());
+  codeGen.generate(*parse_result).value()->print(llvm::outs());
 
   // TODO (bgluzman): doesn't really do anything yet since no definitions live
   //  within the module at this point...
