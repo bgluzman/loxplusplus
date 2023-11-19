@@ -25,7 +25,7 @@ std::ostream& operator<<(std::ostream& os, const Binary& binary) {
 
 std::ostream& operator<<(std::ostream& os, const AstNode& node) {
   return std::visit([&os](auto&& node) -> std::ostream& { return os << node; },
-                    node);
+                    node.value);
 }
 
 }  // namespace loxpp

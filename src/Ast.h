@@ -9,17 +9,19 @@
 
 namespace loxpp {
 
-struct Binary;
-
-using AstNode = std::variant<Literal, Binary>;
-std::ostream& operator<<(std::ostream& os, const AstNode& node);
-
+struct AstNode;
 struct Binary {
   std::unique_ptr<AstNode> left;
   Token                    op;
   std::unique_ptr<AstNode> right;
 };
 std::ostream& operator<<(std::ostream& os, const Binary& binary);
+
+struct AstNode {
+  using Value = std::variant<Literal, Binary>;
+  Value value;
+};
+std::ostream& operator<<(std::ostream& os, const AstNode& node);
 
 // TODO (bgluzman): relocate this?
 template <class... Ts> struct overloaded : Ts... {

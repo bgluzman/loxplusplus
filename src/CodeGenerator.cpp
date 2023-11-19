@@ -11,7 +11,7 @@ CodeGenerator::CodeGenerator()
 
 Expected<llvm::Value *>
 CodeGenerator::generate(const std::unique_ptr<AstNode>& ast) try {
-  return std::visit([this](auto&& node) { return generate(node); }, *ast);
+  return std::visit([this](auto&& node) { return generate(node); }, ast->value);
 } catch (const CompilationError& err) {
   return std::unexpected(err);
 }
