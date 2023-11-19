@@ -29,6 +29,9 @@ public:
   void print();
 
 private:
+  llvm::Value *generate(const Binary& binary);
+  llvm::Value *generate(const Literal& literal);
+
   std::unique_ptr<llvm::LLVMContext> context_;
   std::unique_ptr<llvm::Module>      module_;
   std::unique_ptr<llvm::IRBuilder<>> builder_;

@@ -11,36 +11,31 @@ CodeGenerator::CodeGenerator()
 
 std::expected<llvm::Value *, CompilationError>
 CodeGenerator::generate(const std::unique_ptr<AstNode>& ast) {
-  return std::visit(
-      overloaded{
-          [this](const Binary& binary)
-              -> std::expected<llvm::Value *, CompilationError> {
-            auto left = generate(binary.left);
-            if (!left)
-              return left;
-            auto right = generate(binary.right);
-            if (!right)
-              return right;
+  return std::visit([this](auto&& node) { return generate(node); }, *ast);
+}
 
-            // TODO (bgluzman): obviously just a stub for now...
-            if (binary.op.type != TokenType::PLUS)
-              return std::unexpected(CompilationError(binary.op, "wrong op"));
+llvm::Value *CodeGenerator::generate(const Binary& binary) {
+  auto left = generate(binary.left);
+  if (!left)
+    throw CompilationError(left.error());
+  auto right = generate(binary.right);
+  if (!right)
+    throw CompilationError(right.error());
 
-            return builder_->CreateFAdd(*left, *right, "addtmp");
-          },
-          [this](const Literal& literal)
-              -> std::expected<llvm::Value *, CompilationError> {
-            // TODO (bgluzman): obviously just a stub for now...
-            if (auto *value = std::get_if<double>(&literal)) {
-              return llvm::ConstantFP::get(*context_, llvm::APFloat(*value));
-            } else {
-              // TODO (bgluzman): ...also obviously the line is
-              // broken
-              return std::unexpected(CompilationError(-1, "bad literal value"));
-            }
-          },
-      },
-      *ast);
+  // TODO (bgluzman): obviously just a stub for now...
+  if (binary.op.type != TokenType::PLUS)
+    throw CompilationError(binary.op, "wrong op");
+
+  return builder_->CreateFAdd(*left, *right, "addtmp");
+}
+
+llvm::Value *CodeGenerator::generate(const Literal& literal) {
+  // TODO (bgluzman): obviously just a stub for now...
+  if (auto *value = std::get_if<double>(&literal)) {
+    return llvm::ConstantFP::get(*context_, llvm::APFloat(*value));
+  }
+  // TODO (bgluzman): ...also obviously the line number is broken
+  throw CompilationError(-1, "bad literal value");
 }
 
 void CodeGenerator::print() { module_->print(llvm::outs(), nullptr); }

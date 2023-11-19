@@ -30,7 +30,13 @@ int main(int /*argc*/, char * /*argv*/[]) {
   std::cout << **parse_result << '\n' << std::flush;
 
   CodeGenerator codeGen;
-  codeGen.generate(*parse_result).value()->print(llvm::outs());
+  auto          codegen_result = codeGen.generate(*parse_result);
+  if (!codegen_result) {
+    codegen_result.error().report();
+    return -1;
+  }
+  codegen_result.value()->print(llvm::outs());
+  std::cout << '\n' << std::flush;
 
   // TODO (bgluzman): doesn't really do anything yet since no definitions live
   //  within the module at this point...
