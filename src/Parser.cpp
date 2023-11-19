@@ -7,7 +7,7 @@ namespace loxpp {
 
 Parser::Parser(Scanner scanner) : scanner_(std::move(scanner)) {}
 
-std::expected<std::unique_ptr<AstNode>, CompilationError> Parser::parse() try {
+Expected<std::unique_ptr<AstNode>> Parser::parse() try {
   // TODO (bgluzman): STUB! REPLACE!!
   return plus();
 } catch (const CompilationError& err) {

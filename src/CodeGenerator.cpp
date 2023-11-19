@@ -9,7 +9,7 @@ CodeGenerator::CodeGenerator()
       module_(std::make_unique<llvm::Module>("lox++ jit", *context_)),
       builder_(std::make_unique<llvm::IRBuilder<>>(*context_)) {}
 
-std::expected<llvm::Value *, CompilationError>
+Expected<llvm::Value *>
 CodeGenerator::generate(const std::unique_ptr<AstNode>& ast) {
   return std::visit([this](auto&& node) { return generate(node); }, *ast);
 }

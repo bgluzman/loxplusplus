@@ -11,7 +11,7 @@ class Parser {
 
 public:
   explicit Parser(Scanner scanner);
-  std::expected<std::unique_ptr<AstNode>, CompilationError> parse();
+  Expected<std::unique_ptr<AstNode>> parse();
 
 private:
   std::unique_ptr<AstNode> plus();

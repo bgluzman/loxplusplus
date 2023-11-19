@@ -3,7 +3,6 @@
 #include "Ast.h"
 #include "CompilationError.h"
 
-#include <expected>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>
@@ -24,9 +23,8 @@ class CodeGenerator {
 public:
   CodeGenerator();
 
-  std::expected<llvm::Value *, CompilationError>
-       generate(const std::unique_ptr<AstNode>     &ast);
-  void print();
+  Expected<llvm::Value *> generate(const std::unique_ptr<AstNode>& ast);
+  void                    print();
 
 private:
   llvm::Value *generate(const Binary& binary);

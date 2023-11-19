@@ -4,7 +4,6 @@
 #include "Token.h"
 
 #include <deque>
-#include <expected>
 #include <optional>
 #include <stdexcept>
 #include <string_view>
@@ -14,8 +13,7 @@ namespace loxpp {
 class Scanner {
 
 public:
-  static std::expected<Scanner, CompilationError>
-  construct(std::string_view source);
+  static Expected<Scanner> construct(std::string_view source);
 
   [[nodiscard]] bool                 isAtEnd() const;
   [[nodiscard]] Token                peek() const;
