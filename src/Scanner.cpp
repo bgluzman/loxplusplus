@@ -63,7 +63,8 @@ std::deque<Token> ScannerImpl::scanTokens() && noexcept {
     start_ = current_;
     scanToken();
   }
-  tokens_.emplace_back(TokenType::END_OF_FILE, "", std::monostate{}, line_);
+  tokens_.emplace_back(TokenType::END_OF_FILE, "",
+                       Literal{.value = std::monostate{}}, line_);
   return tokens_;
 }
 
@@ -206,7 +207,7 @@ void ScannerImpl::string() {
   // start_+1 to skip first quote.
   // len-2 so len does not include both open/close quotes.
   auto value = source_.substr(start_ + 1, current_ - start_ - 2);
-  addToken(TokenType::STRING, value);
+  addToken(TokenType::STRING, Literal{.value = value});
 }
 
 void ScannerImpl::number() {
@@ -234,7 +235,7 @@ void ScannerImpl::number() {
     throw CompilationError(line_, "Number out of range.");
   }
 
-  addToken(TokenType::NUMBER, number);
+  addToken(TokenType::NUMBER, Literal{.value = number});
 }
 
 void ScannerImpl::identifier() {
@@ -249,7 +250,9 @@ void ScannerImpl::identifier() {
   addToken(type);
 }
 
-void ScannerImpl::addToken(TokenType type) { addToken(type, std::monostate{}); }
+void ScannerImpl::addToken(TokenType type) {
+  addToken(type, Literal{.value = std::monostate{}});
+}
 
 void ScannerImpl::addToken(TokenType type, Literal literal) {
   auto text = source_.substr(start_, current_ - start_);

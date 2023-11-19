@@ -6,7 +6,10 @@
 
 namespace loxpp {
 
-using Literal = std::variant<std::monostate, double, std::string_view>;
+struct Literal {
+  using Value = std::variant<std::monostate, double, std::string_view>;
+  Value value;
+};
 
 std::ostream& operator<<(std::ostream& os, const Literal& literal);
 

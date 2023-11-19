@@ -33,7 +33,7 @@ llvm::Value *CodeGenerator::generate(const Binary& binary) {
 
 llvm::Value *CodeGenerator::generate(const Literal& literal) {
   // TODO (bgluzman): obviously just a stub for now...
-  if (auto *value = std::get_if<double>(&literal)) {
+  if (auto *value = std::get_if<double>(&literal.value)) {
     return llvm::ConstantFP::get(*context_, llvm::APFloat(*value));
   }
   // TODO (bgluzman): ...also obviously the line number is broken
