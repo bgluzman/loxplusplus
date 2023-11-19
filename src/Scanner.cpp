@@ -258,8 +258,7 @@ void ScannerImpl::addToken(TokenType type, Literal literal) {
 
 }  // namespace
 
-std::expected<Scanner, CompilationError>
-Scanner::construct(std::string_view source) try {
+CompilationResult<Scanner> Scanner::construct(std::string_view source) try {
   std::deque<Token> tokens = ScannerImpl{source}.scanTokens();
   return Scanner(std::move(tokens));
 } catch (const CompilationError& err) {

@@ -10,12 +10,15 @@ namespace loxpp {
 class Parser {
 
 public:
+  using ParseResult = CompilationResult<std::unique_ptr<AstNode>>;
+
+public:
   explicit Parser(Scanner scanner);
-  std::expected<std::unique_ptr<AstNode>, CompilationError> parse();
+  ParseResult parse();
 
 private:
-  std::unique_ptr<AstNode> plus();
-  std::unique_ptr<AstNode> primary();
+  ParseResult plus();
+  ParseResult primary();
 
   bool match(const std::initializer_list<TokenType>& types);
   bool check(TokenType type) const;

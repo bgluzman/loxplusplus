@@ -2,6 +2,7 @@
 
 #include "Token.h"
 
+#include <expected>
 #include <stdexcept>
 
 namespace loxpp {
@@ -20,5 +21,8 @@ private:
   int         line_;
   std::string where_ = {};
 };
+
+template <typename T>
+using CompilationResult = std::expected<T, CompilationError>;
 
 }  // namespace loxpp
