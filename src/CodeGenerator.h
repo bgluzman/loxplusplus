@@ -23,7 +23,7 @@ class CodeGenerator {
 public:
   CodeGenerator();
 
-  Expected<llvm::Value *> generate(const std::unique_ptr<AstNode>& ast);
+  Expected<llvm::Value *> generate(const std::unique_ptr<Expr>& ast);
   void                    print();
 
 private:

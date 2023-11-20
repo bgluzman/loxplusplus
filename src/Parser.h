@@ -11,11 +11,11 @@ class Parser {
 
 public:
   explicit Parser(Scanner scanner);
-  Expected<std::unique_ptr<AstNode>> parse();
+  Expected<std::unique_ptr<Expr>> parse();
 
 private:
-  std::unique_ptr<AstNode> plus();
-  std::unique_ptr<AstNode> primary();
+  std::unique_ptr<Expr> plus();
+  std::unique_ptr<Expr> primary();
 
   bool match(const std::initializer_list<TokenType>& types);
   bool check(TokenType type) const;

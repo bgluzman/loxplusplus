@@ -9,18 +9,19 @@
 
 namespace loxpp {
 
-struct AstNode;
+struct Expr;
+
 struct Binary {
-  std::unique_ptr<AstNode> left;
-  Token                    op;
-  std::unique_ptr<AstNode> right;
+  std::unique_ptr<Expr> left;
+  Token                 op;
+  std::unique_ptr<Expr> right;
 };
 std::ostream& operator<<(std::ostream& os, const Binary& binary);
 
-struct AstNode {
+struct Expr {
   using Value = std::variant<Literal, Binary>;
   Value value;
 };
-std::ostream& operator<<(std::ostream& os, const AstNode& node);
+std::ostream& operator<<(std::ostream& os, const Expr& expr);
 
 }  // namespace loxpp

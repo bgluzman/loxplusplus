@@ -7,24 +7,24 @@ namespace loxpp {
 
 Parser::Parser(Scanner scanner) : scanner_(std::move(scanner)) {}
 
-Expected<std::unique_ptr<AstNode>> Parser::parse() try {
+Expected<std::unique_ptr<Expr>> Parser::parse() try {
   // TODO (bgluzman): STUB! REPLACE!!
   return plus();
 } catch (const CompilationError& err) {
   return std::unexpected(err);
 }
 
-std::unique_ptr<AstNode> Parser::plus() {
+std::unique_ptr<Expr> Parser::plus() {
   // TODO (bgluzman): STUB! REPLACE!!
-  std::unique_ptr<AstNode> left = primary();
+  std::unique_ptr<Expr> left = primary();
   while (!scanner_.isAtEnd()) {
     if (!match({TokenType::PLUS}))
       // TODO (bgluzman): deref here is safe but just use helper from primary()
       //  anyway to simplify logic?
       throw CompilationError(*scanner_.previous(), "expected '+'");
-    Token                    op = *scanner_.previous();
-    std::unique_ptr<AstNode> right = plus();
-    left = std::make_unique<AstNode>(Binary{
+    Token                 op = *scanner_.previous();
+    std::unique_ptr<Expr> right = plus();
+    left = std::make_unique<Expr>(Binary{
         .left = std::move(left),
         .op = op,
         .right = std::move(right),
@@ -33,11 +33,11 @@ std::unique_ptr<AstNode> Parser::plus() {
   return left;
 }
 
-std::unique_ptr<AstNode> Parser::primary() {
+std::unique_ptr<Expr> Parser::primary() {
   // TODO (bgluzman): STUB! REPLACE!!
   if (match({TokenType::NUMBER})) {
     // TODO (bgluzman): more error checking here?
-    return std::make_unique<AstNode>(*scanner_.previous()->literal);
+    return std::make_unique<Expr>(*scanner_.previous()->literal);
   }
 
   // TODO (bgluzman): should we break this into a helper function?

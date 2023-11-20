@@ -5,7 +5,7 @@ namespace loxpp {
 namespace {
 
 void parenthesize(std::ostream& os, std::string_view name,
-                  const std::initializer_list<AstNode *>& exprs) {
+                  const std::initializer_list<Expr *>& exprs) {
   os << '(' << name;
   for (const auto& expr : exprs) {
     if (expr) {
@@ -23,9 +23,9 @@ std::ostream& operator<<(std::ostream& os, const Binary& binary) {
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const AstNode& node) {
-  return std::visit([&os](auto&& node) -> std::ostream& { return os << node; },
-                    node.value);
+std::ostream& operator<<(std::ostream& os, const Expr& expr) {
+  return std::visit([&os](auto&& expr) -> std::ostream& { return os << expr; },
+                    expr.value);
 }
 
 }  // namespace loxpp
