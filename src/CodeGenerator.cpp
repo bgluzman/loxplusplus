@@ -10,8 +10,9 @@ CodeGenerator::CodeGenerator()
       builder_(std::make_unique<llvm::IRBuilder<>>(*context_)) {}
 
 Expected<void> CodeGenerator::generate(const Ast& ast) {
+  // TODO (bgluzman): change this to void or integer type!
   llvm::FunctionType *functionType =
-      llvm::FunctionType::get(llvm::Type::getVoidTy(*context_), false);
+      llvm::FunctionType::get(llvm::Type::getDoubleTy(*context_), false);
   llvm::Function *function =
       llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
                              "__toplevel", module_.get());
@@ -25,6 +26,12 @@ Expected<void> CodeGenerator::generate(const Ast& ast) {
   } catch (const CompilationError& err) {
     return std::unexpected(err);
   }
+
+  llvm::raw_ostream *errs = &llvm::errs();
+  if (llvm::verifyFunction(*function, errs)) {
+    return std::unexpected(CompilationError(0, "compiling toplevel failed"));
+  }
+
   return {};
 }
 
