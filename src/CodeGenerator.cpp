@@ -9,12 +9,34 @@ CodeGenerator::CodeGenerator()
       module_(std::make_unique<llvm::Module>("lox++ jit", *context_)),
       builder_(std::make_unique<llvm::IRBuilder<>>(*context_)) {}
 
-Expected<llvm::Value *> CodeGenerator::generate(const Ast& ast) try {
-  // TODO (bgluzman): obviously just a stub for now...
-  (void)ast;
-  throw CompilationError(-1, "not implemented yet");
-} catch (const CompilationError& err) {
-  return std::unexpected(err);
+Expected<void> CodeGenerator::generate(const Ast& ast) {
+  try {
+    for (const auto& stmt : ast.value)
+      generate(*stmt);
+  } catch (const CompilationError& err) {
+    return std::unexpected(err);
+  }
+  return {};
+}
+
+void CodeGenerator::generate(const Stmt& stmt) {
+  std::visit([this](auto&& stmt) { return generate(stmt); }, stmt.value);
+}
+
+void CodeGenerator::generate(const Expression& expression) {
+  generate(*expression.expr);
+}
+
+void CodeGenerator::generate(const Block& block) {
+  // TODO (bgluzman)
+}
+
+void CodeGenerator::generate(const Function& function) {
+  // TODO (bgluzman)
+}
+
+void CodeGenerator::generate(const Return& return_) {
+  // TODO (bgluzman)
 }
 
 llvm::Value *CodeGenerator::generate(const Expr& expr) {

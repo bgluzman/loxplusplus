@@ -23,10 +23,17 @@ class CodeGenerator {
 public:
   CodeGenerator();
 
-  Expected<llvm::Value *> generate(const Ast& ast);
-  void                    print();
+  // TODO (bgluzman): is this a weird return type?
+  Expected<void> generate(const Ast& ast);
+  void           print();
 
 private:
+  void generate(const Stmt& stmt);
+  void generate(const Expression& expression);
+  void generate(const Block& block);
+  void generate(const Function& function);
+  void generate(const Return& return_);
+
   llvm::Value *generate(const Expr& expr);
   llvm::Value *generate(const Binary& binary);
   llvm::Value *generate(const Literal& literal);

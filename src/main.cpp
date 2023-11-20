@@ -35,8 +35,8 @@ int main(int /*argc*/, char * /*argv*/[]) {
     codegen_result.error().report();
     return -1;
   }
-  codegen_result.value()->print(llvm::outs());
-  std::cout << '\n' << std::flush;
+  // codegen_result.value()->print(llvm::outs());
+  // std::cout << '\n' << std::flush;
 
   // TODO (bgluzman): doesn't really do anything yet since no definitions live
   //  within the module at this point...
