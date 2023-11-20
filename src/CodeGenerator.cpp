@@ -10,6 +10,15 @@ CodeGenerator::CodeGenerator()
       builder_(std::make_unique<llvm::IRBuilder<>>(*context_)) {}
 
 Expected<void> CodeGenerator::generate(const Ast& ast) {
+  llvm::FunctionType *functionType =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(*context_), false);
+  llvm::Function *function =
+      llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
+                             "__toplevel", module_.get());
+  llvm::BasicBlock *block =
+      llvm::BasicBlock::Create(*context_, "entry", function);
+  builder_->SetInsertPoint(block);
+
   try {
     for (const auto& stmt : ast.value)
       generate(*stmt);
@@ -36,7 +45,8 @@ void CodeGenerator::generate(const Function& function) {
 }
 
 void CodeGenerator::generate(const Return& return_) {
-  // TODO (bgluzman)
+  // TODO (bgluzman): value can be nullable!!
+  builder_->CreateRet(generate(*return_.value));
 }
 
 llvm::Value *CodeGenerator::generate(const Expr& expr) {
