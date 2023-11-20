@@ -45,8 +45,13 @@ void CodeGenerator::generate(const Function& function) {
 }
 
 void CodeGenerator::generate(const Return& return_) {
-  // TODO (bgluzman): value can be nullable!!
-  builder_->CreateRet(generate(*return_.value));
+  // TODO (bgluzman): where do we decide on valid locations for return
+  //  statements? is it here or in earlier passes?
+  if (return_.value) {
+    builder_->CreateRet(generate(*return_.value));
+  } else {
+    builder_->CreateRetVoid();
+  }
 }
 
 llvm::Value *CodeGenerator::generate(const Expr& expr) {
