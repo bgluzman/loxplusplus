@@ -8,7 +8,7 @@
 using namespace loxpp;
 
 int main(int /*argc*/, char * /*argv*/[]) {
-  std::string source = "1 + 1";
+  std::string source = "1 + 1;";
 
   auto scanner = Scanner::construct(source);
   if (!scanner) {
@@ -27,7 +27,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
     parse_result.error().report();
     return -1;
   }
-  std::cout << **parse_result << '\n' << std::flush;
+  std::cout << *parse_result << '\n' << std::flush;
 
   CodeGenerator codeGen;
   auto          codegen_result = codeGen.generate(*parse_result);

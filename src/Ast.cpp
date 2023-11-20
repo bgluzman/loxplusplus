@@ -29,7 +29,7 @@ std::ostream& operator<<(std::ostream& os, const Expr& expr) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Expression& expression) {
-  return os << expression.expr;
+  return os << *expression.expr;
 }
 
 std::ostream& operator<<(std::ostream& os, const Block& block) {
@@ -63,6 +63,14 @@ std::ostream& operator<<(std::ostream& os, const Return& return_) {
 std::ostream& operator<<(std::ostream& os, const Stmt& stmt) {
   return std::visit([&os](auto&& stmt) -> std::ostream& { return os << stmt; },
                     stmt.value);
+}
+
+std::ostream& operator<<(std::ostream& os, const Ast& ast) {
+  os << "(ast";
+  for (const auto& stmt : ast.value) {
+    os << ' ' << *stmt;
+  }
+  return os << ')';
 }
 
 }  // namespace loxpp

@@ -7,11 +7,67 @@ namespace loxpp {
 
 Parser::Parser(Scanner scanner) : scanner_(std::move(scanner)) {}
 
-Expected<std::unique_ptr<Expr>> Parser::parse() try {
-  // TODO (bgluzman): STUB! REPLACE!!
-  return plus();
+Expected<Ast> Parser::parse() try {
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  while (!scanner_.isAtEnd())
+    stmts.emplace_back(declaration());
+  return Ast{.value = std::move(stmts)};
 } catch (const CompilationError& err) {
   return std::unexpected(err);
+}
+
+std::unique_ptr<Stmt> Parser::declaration() {
+  // TODO (bgluzman): error-handling and synchronization!
+  if (match({TokenType::FUN}))
+    return function();
+  // TODO (bgluzman): other types of decls...
+  return statement();
+}
+
+std::unique_ptr<Stmt> Parser::function() {
+  return nullptr;  // TODO (bgluzman)
+}
+
+std::unique_ptr<Stmt> Parser::statement() {
+  if (match({TokenType::RETURN}))
+    return returnStatement();
+  if (match({TokenType::LEFT_BRACE}))
+    return block();
+  return expressionStatement();
+}
+
+std::unique_ptr<Stmt> Parser::block() {
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  while (!check(TokenType::RIGHT_BRACE) && !scanner_.isAtEnd()) {
+    stmts.emplace_back(declaration());
+  }
+
+  consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+  return std::make_unique<Stmt>(Block{.stmts = std::move(stmts)});
+}
+
+std::unique_ptr<Stmt> Parser::returnStatement() {
+  // Deref below is safe because we just scanned the keyword in `statement()`.
+  Token                 keyword = *scanner_.previous();
+  std::unique_ptr<Expr> value = nullptr;
+  if (!check(TokenType::SEMICOLON)) {
+    value = expression();
+  }
+
+  consume(TokenType::SEMICOLON, "Expect ';' after return value");
+  return std::make_unique<Stmt>(
+      Return{.keyword = keyword, .value = std::move(value)});
+}
+
+std::unique_ptr<Stmt> Parser::expressionStatement() {
+  std::unique_ptr<Expr> expr = expression();
+  consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+  return std::make_unique<Stmt>(Expression(std::move(expr)));
+}
+
+std::unique_ptr<Expr> Parser::expression() {
+  // TODO (bgluzman): obviously a stub! REPLACE THIS WITH REAL EXPR PARSING!!
+  return plus();
 }
 
 std::unique_ptr<Expr> Parser::plus() {
@@ -19,9 +75,8 @@ std::unique_ptr<Expr> Parser::plus() {
   std::unique_ptr<Expr> left = primary();
   while (!scanner_.isAtEnd()) {
     if (!match({TokenType::PLUS}))
-      // TODO (bgluzman): deref here is safe but just use helper from primary()
-      //  anyway to simplify logic?
-      throw CompilationError(*scanner_.previous(), "expected '+'");
+      break;
+    
     Token                 op = *scanner_.previous();
     std::unique_ptr<Expr> right = plus();
     left = std::make_unique<Expr>(Binary{
@@ -45,6 +100,12 @@ std::unique_ptr<Expr> Parser::primary() {
                  .transform([](const auto& prev) { return prev.line; })
                  .value_or(0);
   throw CompilationError(line, "expected expression");
+}
+
+Token Parser::consume(TokenType type, std::string_view message) {
+  if (check(type))
+    return scanner_.advance();
+  throw CompilationError(scanner_.peek(), std::string{message});
 }
 
 bool Parser::match(const std::initializer_list<TokenType>& types) {

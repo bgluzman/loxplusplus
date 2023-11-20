@@ -23,10 +23,11 @@ class CodeGenerator {
 public:
   CodeGenerator();
 
-  Expected<llvm::Value *> generate(const std::unique_ptr<Expr>& ast);
+  Expected<llvm::Value *> generate(const Ast& ast);
   void                    print();
 
 private:
+  llvm::Value *generate(const Expr& expr);
   llvm::Value *generate(const Binary& binary);
   llvm::Value *generate(const Literal& literal);
 

@@ -55,4 +55,10 @@ struct Stmt {
 };
 std::ostream& operator<<(std::ostream& os, const Stmt& stmt);
 
+struct Ast {
+  using Value = std::vector<std::unique_ptr<Stmt>>;
+  Value value;
+};
+std::ostream& operator<<(std::ostream& os, const Ast& ast);
+
 }  // namespace loxpp

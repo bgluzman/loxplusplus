@@ -9,26 +9,26 @@ CodeGenerator::CodeGenerator()
       module_(std::make_unique<llvm::Module>("lox++ jit", *context_)),
       builder_(std::make_unique<llvm::IRBuilder<>>(*context_)) {}
 
-Expected<llvm::Value *>
-CodeGenerator::generate(const std::unique_ptr<Expr>& ast) try {
-  return std::visit([this](auto&& node) { return generate(node); }, ast->value);
+Expected<llvm::Value *> CodeGenerator::generate(const Ast& ast) try {
+  // TODO (bgluzman): obviously just a stub for now...
+  (void)ast;
+  throw CompilationError(-1, "not implemented yet");
 } catch (const CompilationError& err) {
   return std::unexpected(err);
 }
 
-llvm::Value *CodeGenerator::generate(const Binary& binary) {
-  auto left = generate(binary.left);
-  if (!left)
-    throw CompilationError(left.error());
-  auto right = generate(binary.right);
-  if (!right)
-    throw CompilationError(right.error());
+llvm::Value *CodeGenerator::generate(const Expr& expr) {
+  return std::visit([this](auto&& expr) { return generate(expr); }, expr.value);
+}
 
+llvm::Value *CodeGenerator::generate(const Binary& binary) {
+  auto left = generate(*binary.left);
+  auto right = generate(*binary.right);
   // TODO (bgluzman): obviously just a stub for now...
   if (binary.op.type != TokenType::PLUS)
     throw CompilationError(binary.op, "wrong op");
 
-  return builder_->CreateFAdd(*left, *right, "addtmp");
+  return builder_->CreateFAdd(left, right, "addtmp");
 }
 
 llvm::Value *CodeGenerator::generate(const Literal& literal) {
