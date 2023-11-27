@@ -9,7 +9,7 @@ using namespace loxpp;
 
 int main(int /*argc*/, char * /*argv*/[]) {
   std::string source = R"(
-fun testFun(x, y) { return 42; }
+fun testFun(x, y) { return -1.0 * 42; }
 
 return 1 + 1;
 )";

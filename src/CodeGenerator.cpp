@@ -103,19 +103,57 @@ llvm::Value *CodeGenerator::generate(const Expr& expr) {
   return std::visit([this](auto&& expr) { return generate(expr); }, expr.value);
 }
 
-llvm::Value *CodeGenerator::generate(const Binary& binary) {
-  auto left = generate(*binary.left);
-  auto right = generate(*binary.right);
-  // TODO (bgluzman): obviously just a stub for now...
-  if (binary.op.type != TokenType::PLUS)
-    throw CompilationError(binary.op, "wrong op");
+llvm::Value *CodeGenerator::generate(const Unary& unary) {
+  // TODO (bgluzman): support all other operations
+  if (unary.op.type != TokenType::MINUS)
+    throw CompilationError(unary.op, "unsupported operation");
+  return builder_->CreateFNeg(generate(*unary.operand));
+}
 
-  return builder_->CreateFAdd(left, right, "addtmp");
+llvm::Value *CodeGenerator::generate(const Binary& binary) {
+  llvm::Value *left = generate(*binary.left);
+  llvm::Value *right = generate(*binary.right);
+
+  // TODO (bgluzman): support all other operations
+  switch (binary.op.type) {
+    // factor
+  case TokenType::STAR:
+    return builder_->CreateFMul(left, right, "multmp");
+  case TokenType::SLASH:
+    return builder_->CreateFDiv(left, right, "divtmp");
+
+    // term
+  case TokenType::PLUS:
+    return builder_->CreateFAdd(left, right, "addtmp");
+  case TokenType::MINUS:
+    return builder_->CreateFSub(left, right, "subtmp");
+
+    // TODO (bgluzman): when dealing with doubles, decide between U{G,L}{T,E}
+    //  operations and O{G,L}{T,E} operations...need to look into qNaN here?
+    // comparison
+  case TokenType::GREATER:
+    return builder_->CreateFCmpUGT(left, right, "cmptmp");
+  case TokenType::GREATER_EQUAL:
+    return builder_->CreateFCmpUGE(left, right, "cmptmp");
+  case TokenType::LESS:
+    return builder_->CreateFCmpULT(left, right, "cmptmp");
+  case TokenType::LESS_EQUAL:
+    return builder_->CreateFCmpULE(left, right, "cmptmp");
+
+    // equality
+  case TokenType::BANG_EQUAL:
+    return builder_->CreateFCmpUNE(left, right, "neqtmp");
+  case TokenType::EQUAL_EQUAL:
+    return builder_->CreateFCmpUEQ(left, right, "eqltmp");
+
+  default:
+    throw CompilationError(binary.op, "unsupported operation");
+  }
 }
 
 llvm::Value *CodeGenerator::generate(const Literal& literal) {
   // TODO (bgluzman): obviously just a stub for now...
-  if (auto *value = std::get_if<double>(&literal.value)) {
+  if (const double *value = std::get_if<double>(&literal.value)) {
     return llvm::ConstantFP::get(*context_, llvm::APFloat(*value));
   }
   // TODO (bgluzman): ...also obviously the line number is broken

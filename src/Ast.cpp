@@ -18,6 +18,10 @@ std::ostream& parenthesize(std::ostream& os, std::string_view name,
 
 }  // namespace
 
+std::ostream& operator<<(std::ostream& os, const Unary& unary) {
+  return parenthesize(os, unary.op.lexeme, {unary.operand.get()});
+}
+
 std::ostream& operator<<(std::ostream& os, const Binary& binary) {
   return parenthesize(os, binary.op.lexeme,
                       {binary.left.get(), binary.right.get()});

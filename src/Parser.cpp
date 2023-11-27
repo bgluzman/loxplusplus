@@ -89,26 +89,57 @@ std::unique_ptr<Stmt> Parser::expressionStatement() {
 }
 
 std::unique_ptr<Expr> Parser::expression() {
-  // TODO (bgluzman): obviously a stub! REPLACE THIS WITH REAL EXPR PARSING!!
-  return plus();
+  // TODO (bgluzman): stub for now, add more expressions later...
+  return equality();
 }
 
-std::unique_ptr<Expr> Parser::plus() {
-  // TODO (bgluzman): STUB! REPLACE!!
-  std::unique_ptr<Expr> left = primary();
-  while (!scanner_.isAtEnd()) {
-    if (!match({TokenType::PLUS}))
-      break;
+std::unique_ptr<Expr> Parser::equality() {
+  return binary({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL},
+                &Parser::comparison);
+}
 
+std::unique_ptr<Expr> Parser::comparison() {
+  return binary({TokenType::GREATER, TokenType::GREATER_EQUAL, TokenType::LESS,
+                 TokenType::LESS_EQUAL},
+                &Parser::term);
+}
+
+std::unique_ptr<Expr> Parser::term() {
+  return binary({TokenType::MINUS, TokenType::PLUS}, &Parser::factor);
+}
+
+std::unique_ptr<Expr> Parser::factor() {
+  return binary({TokenType::SLASH, TokenType::STAR}, &Parser::unary);
+}
+
+std::unique_ptr<Expr>
+Parser::binary(const std::initializer_list<TokenType>& types,
+               std::unique_ptr<Expr> (Parser::*nextProduction)()) {
+  auto expr = (this->*nextProduction)();
+  while (match(types)) {
+    // Dereference is safe b/c of `match()` advancing when true.
     Token                 op = *scanner_.previous();
-    std::unique_ptr<Expr> right = plus();
-    left = std::make_unique<Expr>(Binary{
-        .left = std::move(left),
+    std::unique_ptr<Expr> right = (this->*nextProduction)();
+    expr = std::make_unique<Expr>(Binary{
+        .left = std::move(expr),
         .op = op,
         .right = std::move(right),
     });
   }
-  return left;
+  return expr;
+}
+
+std::unique_ptr<Expr> Parser::unary() {
+  if (match({TokenType::BANG, TokenType::MINUS})) {
+    // Dereference is safe b/c of `match()` advancing when true.
+    Token                 op = *scanner_.previous();
+    std::unique_ptr<Expr> right = unary();
+    return std::make_unique<Expr>(Unary{
+        .op = op,
+        .operand = std::move(right),
+    });
+  }
+  return primary();  // TODO (bgluzman): dispatch to call() here
 }
 
 std::unique_ptr<Expr> Parser::primary() {
