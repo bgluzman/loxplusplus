@@ -37,9 +37,9 @@ struct Block {
 std::ostream& operator<<(std::ostream& os, const Block& block);
 
 struct Function {
-  Token                              name;
-  std::vector<Token>                 params;
-  std::vector<std::unique_ptr<Stmt>> body;
+  Token                 name;
+  std::vector<Token>    params;
+  std::unique_ptr<Stmt> body;
 };
 std::ostream& operator<<(std::ostream& os, const Function& function);
 

@@ -25,7 +25,30 @@ std::unique_ptr<Stmt> Parser::declaration() {
 }
 
 std::unique_ptr<Stmt> Parser::function() {
-  return nullptr;  // TODO (bgluzman)
+  static constexpr std::string kind = "function";  // TODO (bgluzman): methods
+
+  Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
+  consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
+  std::vector<Token> parameters;
+  if (!check(TokenType::RIGHT_PAREN)) {
+    do {
+      if (parameters.size() >= 255) {
+        throw CompilationError(scanner_.peek(),
+                               "Can't have more than 255 parameters.");
+      }
+
+      parameters.push_back(
+          consume(TokenType::IDENTIFIER, "Expect parameter name."));
+    } while (match({TokenType::COMMA}));
+  }
+  consume(TokenType::RIGHT_PAREN, "Expect ')'' after parameters");
+
+  consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
+  return std::make_unique<Stmt>(Function{
+      .name = name,
+      .params = std::move(parameters),
+      .body = block(),
+  });
 }
 
 std::unique_ptr<Stmt> Parser::statement() {
@@ -76,7 +99,7 @@ std::unique_ptr<Expr> Parser::plus() {
   while (!scanner_.isAtEnd()) {
     if (!match({TokenType::PLUS}))
       break;
-    
+
     Token                 op = *scanner_.previous();
     std::unique_ptr<Expr> right = plus();
     left = std::make_unique<Expr>(Binary{

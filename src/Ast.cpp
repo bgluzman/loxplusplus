@@ -47,12 +47,7 @@ std::ostream& operator<<(std::ostream& os, const Function& function) {
       os << ' ' << param.lexeme;
     os << ") ";
   }
-  {
-    os << "(body";
-    for (const auto& stmt : function.body)
-      os << ' ' << *stmt;
-    os << ')';
-  }
+  os << "(body " << *function.body << ')';
   return os << ')';
 }
 
