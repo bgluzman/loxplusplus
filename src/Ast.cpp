@@ -19,11 +19,11 @@ std::ostream& parenthesize(std::ostream& os, std::string_view name,
 }  // namespace
 
 std::ostream& operator<<(std::ostream& os, const Variable& variable) {
-  return os << '$' << variable.name;
+  return os << '$' << variable.name.lexeme;
 }
 
 std::ostream& operator<<(std::ostream& os, const Call& call) {
-  os << "(call " << call.callee.lexeme << "( ";
+  os << "(call " << call.callee.lexeme << "(";
   for (const auto& arg : call.arguments)
     os << ' ' << *arg;
   return os << "))";
