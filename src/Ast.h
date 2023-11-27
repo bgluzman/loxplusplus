@@ -18,6 +18,14 @@ struct Variable {
 };
 std::ostream& operator<<(std::ostream& os, const Variable& variable);
 
+struct Call {
+  // TODO (bgluzman): support arbitrary expr for callee!
+  Token                              callee;
+  Token                              paren;  // for error reporting
+  std::vector<std::unique_ptr<Expr>> arguments;
+};
+std::ostream& operator<<(std::ostream& os, const Call& call);
+
 struct Unary {
   Token                 op;
   std::unique_ptr<Expr> operand;
@@ -32,7 +40,7 @@ struct Binary {
 std::ostream& operator<<(std::ostream& os, const Binary& binary);
 
 struct Expr {
-  using Value = std::variant<Literal, Variable, Unary, Binary>;
+  using Value = std::variant<Literal, Variable, Call, Unary, Binary>;
   Value value;
 };
 std::ostream& operator<<(std::ostream& os, const Expr& expr);

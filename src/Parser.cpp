@@ -139,7 +139,51 @@ std::unique_ptr<Expr> Parser::unary() {
         .operand = std::move(right),
     });
   }
-  return primary();  // TODO (bgluzman): dispatch to call() here
+  return call();
+}
+
+std::unique_ptr<Expr> Parser::call() {
+  auto expr = primary();
+  while (true) {
+    if (match({TokenType::LEFT_PAREN})) {
+      // TODO (bgluzman): support arbitrary exprs for callee!!
+      Token callee;
+      if (const Variable *var = std::get_if<Variable>(&expr->value)) {
+        callee = var->name;
+      } else {
+        throw CompilationError(
+            *scanner_.previous(),
+            "calling functions currently only supported by name");
+      }
+
+      // TODO (bgluzman): split this into finishCall() once we support classes
+      std::vector<std::unique_ptr<Expr>> arguments;
+      if (!check(TokenType::RIGHT_PAREN)) {
+        if (arguments.size() >= 255) {
+          throw CompilationError(scanner_.peek(),
+                                 "Can't have more than 255 arguments.");
+        }
+        do {
+          arguments.emplace_back(expression());
+        } while (match({TokenType::COMMA}));
+      }
+
+      Token paren =
+          consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
+      return std::make_unique<Expr>(Call{
+          .callee = callee,
+          .paren = paren,
+          .arguments = std::move(arguments),
+      });
+    } else if (match({TokenType::DOT})) {
+      // TODO (bgluzman): property lookup logic goes here...
+      throw CompilationError(*scanner_.previous(),
+                             "property lookup unsupported");
+    } else {
+      break;
+    }
+  }
+  return expr;
 }
 
 std::unique_ptr<Expr> Parser::primary() {

@@ -22,6 +22,13 @@ std::ostream& operator<<(std::ostream& os, const Variable& variable) {
   return os << '$' << variable.name;
 }
 
+std::ostream& operator<<(std::ostream& os, const Call& call) {
+  os << "(call " << call.callee.lexeme << "( ";
+  for (const auto& arg : call.arguments)
+    os << ' ' << *arg;
+  return os << "))";
+}
+
 std::ostream& operator<<(std::ostream& os, const Unary& unary) {
   return parenthesize(os, unary.op.lexeme, {unary.operand.get()});
 }

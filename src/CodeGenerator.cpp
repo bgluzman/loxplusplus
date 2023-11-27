@@ -157,6 +157,22 @@ llvm::Value *CodeGenerator::generate(const Binary& binary) {
   }
 }
 
+llvm::Value *CodeGenerator::generate(const Call& call) {
+  // TODO (bgluzman): support callee being arbitrary expr
+  llvm::Function *callee = module_->getFunction(call.callee.lexeme);
+  if (!callee)
+    throw CompilationError(call.callee, "unable to resolve function");
+
+  // TODO (bgluzman): should be caught during type-checking?
+  if (callee->arg_size() != call.arguments.size())
+    throw CompilationError(call.paren, "wrong number of arguments");
+
+  std::vector<llvm::Value *> args;
+  std::ranges::transform(call.arguments, std::back_inserter(args),
+                         [this](const auto& arg) { return generate(*arg); });
+  return builder_->CreateCall(callee, args, "calltmp");
+}
+
 llvm::Value *CodeGenerator::generate(const Variable& variable) {
   if (auto it = cur_env_.find(variable.name.lexeme); it != cur_env_.end()) {
     return it->second;

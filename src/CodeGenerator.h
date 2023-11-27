@@ -37,6 +37,7 @@ private:
   llvm::Value *generate(const Expr& expr);
   llvm::Value *generate(const Unary& unary);
   llvm::Value *generate(const Binary& binary);
+  llvm::Value *generate(const Call& call);
   llvm::Value *generate(const Variable& variable);
   llvm::Value *generate(const Literal& literal);
 

@@ -33,6 +33,8 @@ private:
          std::unique_ptr<Expr> (Parser::*nextProduction)());
 
   std::unique_ptr<Expr> unary();
+  std::unique_ptr<Expr> call();
+
   std::unique_ptr<Expr> primary();
 
   Token consume(TokenType type, std::string_view message);
