@@ -157,6 +157,10 @@ llvm::Value *CodeGenerator::generate(const Binary& binary) {
   }
 }
 
+llvm::Value *CodeGenerator::generate(const Grouping& grouping) {
+  return generate(*grouping.expression);
+}
+
 llvm::Value *CodeGenerator::generate(const Call& call) {
   // TODO (bgluzman): support callee being arbitrary expr
   llvm::Function *callee = module_->getFunction(call.callee.lexeme);

@@ -197,6 +197,12 @@ std::unique_ptr<Expr> Parser::primary() {
     // Deref safe because of `match()`.
     return std::make_unique<Expr>(Variable{.name = *scanner_.previous()});
 
+  if (match({TokenType::LEFT_PAREN})) {
+    auto expr = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
+    return std::make_unique<Expr>(Grouping{.expression = std::move(expr)});
+  }
+
   // TODO (bgluzman): should we break this into a helper function?
   int line = scanner_.previous()
                  .transform([](const auto& prev) { return prev.line; })

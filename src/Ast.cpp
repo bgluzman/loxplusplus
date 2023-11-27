@@ -38,6 +38,10 @@ std::ostream& operator<<(std::ostream& os, const Binary& binary) {
                       {binary.left.get(), binary.right.get()});
 }
 
+std::ostream& operator<<(std::ostream& os, const Grouping& grouping) {
+  return parenthesize(os, "group", {grouping.expression.get()});
+}
+
 std::ostream& operator<<(std::ostream& os, const Expr& expr) {
   return std::visit([&os](auto&& expr) -> std::ostream& { return os << expr; },
                     expr.value);

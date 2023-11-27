@@ -39,8 +39,13 @@ struct Binary {
 };
 std::ostream& operator<<(std::ostream& os, const Binary& binary);
 
+struct Grouping {
+  std::unique_ptr<Expr> expression;
+};
+std::ostream& operator<<(std::ostream& os, const Grouping& grouping);
+
 struct Expr {
-  using Value = std::variant<Literal, Variable, Call, Unary, Binary>;
+  using Value = std::variant<Literal, Variable, Call, Unary, Binary, Grouping>;
   Value value;
 };
 std::ostream& operator<<(std::ostream& os, const Expr& expr);
