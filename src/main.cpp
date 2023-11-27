@@ -8,7 +8,11 @@
 using namespace loxpp;
 
 int main(int /*argc*/, char * /*argv*/[]) {
-  std::string source = "return 1 + 1;";
+  std::string source = R"(
+fun testFun(x, y) { return 42; }
+
+return 1 + 1;
+)";
 
   auto scanner = Scanner::construct(source);
   if (!scanner) {

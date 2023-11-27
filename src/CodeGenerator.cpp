@@ -21,8 +21,10 @@ Expected<void> CodeGenerator::generate(const Ast& ast) {
   builder_->SetInsertPoint(block);
 
   try {
-    for (const auto& stmt : ast.value)
+    for (const auto& stmt : ast.value) {
+      builder_->SetInsertPoint(block);
       generate(*stmt);
+    }
   } catch (const CompilationError& err) {
     return std::unexpected(err);
   }
@@ -44,11 +46,47 @@ void CodeGenerator::generate(const Expression& expression) {
 }
 
 void CodeGenerator::generate(const Block& block) {
-  // TODO (bgluzman)
+  // TODO (bgluzman): are we sure we want to enforce that caller sets-up the
+  //  basic block?
+  llvm::BasicBlock *insertPoint = builder_->GetInsertBlock();
+  for (const auto& stmt : block.stmts) {
+    builder_->SetInsertPoint(insertPoint);
+    generate(*stmt);
+  }
 }
 
 void CodeGenerator::generate(const Function& function) {
-  // TODO (bgluzman)
+  // TODO (bgluzman): support all other types...
+  std::vector<llvm::Type *> paramTypes(function.params.size(),
+                                       llvm::Type::getDoubleTy(*context_));
+  llvm::Type               *returnType = llvm::Type::getDoubleTy(*context_);
+  llvm::FunctionType       *functionType =
+      llvm::FunctionType::get(returnType, paramTypes, false);
+
+  // TODO (bgluzman): evaluate linkage type
+  llvm::Function *functionCode =
+      llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
+                             function.name.lexeme, module_.get());
+
+  // Name parameters according to source lexemes.
+  int paramIdx = 0;
+  for (auto& param : functionCode->args())
+    param.setName(function.params[paramIdx++].lexeme);
+
+  llvm::BasicBlock *basicBlock =
+      llvm::BasicBlock::Create(*context_, "entry", functionCode);
+  builder_->SetInsertPoint(basicBlock);
+
+  // TODO (bgluzman): bind arguments...
+
+  generate(*function.body);
+
+  // Verify integrity of generated function.
+  llvm::raw_ostream *errs = &llvm::errs();
+  if (llvm::verifyFunction(*functionCode, errs)) {
+    throw CompilationError(function.name,
+                           "compiling function definition failed");
+  }
 }
 
 void CodeGenerator::generate(const Return& return_) {
