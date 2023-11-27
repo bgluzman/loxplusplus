@@ -37,11 +37,16 @@ private:
   llvm::Value *generate(const Expr& expr);
   llvm::Value *generate(const Unary& unary);
   llvm::Value *generate(const Binary& binary);
+  llvm::Value *generate(const Variable& variable);
   llvm::Value *generate(const Literal& literal);
 
   std::unique_ptr<llvm::LLVMContext> context_;
   std::unique_ptr<llvm::Module>      module_;
   std::unique_ptr<llvm::IRBuilder<>> builder_;
+
+  // TODO (bgluzman): TOTALLY BROKEN! No lexical scoping supported. Need to
+  //  create a proper data-structure with environment nesting.
+  std::unordered_map<std::string_view, llvm::Value *> cur_env_ = {};
 };
 
 }  // namespace loxpp

@@ -69,17 +69,20 @@ void CodeGenerator::generate(const Function& function) {
                              function.name.lexeme, module_.get());
 
   // Name parameters according to source lexemes.
-  int paramIdx = 0;
-  for (auto& param : functionCode->args())
-    param.setName(function.params[paramIdx++].lexeme);
+  int argIdx = 0;
+  for (auto& arg : functionCode->args())
+    arg.setName(function.params[argIdx++].lexeme);
 
   llvm::BasicBlock *basicBlock =
       llvm::BasicBlock::Create(*context_, "entry", functionCode);
   builder_->SetInsertPoint(basicBlock);
 
-  // TODO (bgluzman): bind arguments...
-
+  auto surrounding_env = cur_env_;
+  argIdx = 0;  // TODO (bgluzman): DRY?
+  for (auto& arg : functionCode->args())
+    cur_env_[function.params[argIdx++].lexeme] = &arg;
   generate(*function.body);
+  cur_env_ = surrounding_env;
 
   // Verify integrity of generated function.
   llvm::raw_ostream *errs = &llvm::errs();
@@ -87,6 +90,9 @@ void CodeGenerator::generate(const Function& function) {
     throw CompilationError(function.name,
                            "compiling function definition failed");
   }
+
+  // TODO (bgluzman): tutorial had error-handling which does eraseFromParent(),
+  //  do we need that here?
 }
 
 void CodeGenerator::generate(const Return& return_) {
@@ -149,6 +155,13 @@ llvm::Value *CodeGenerator::generate(const Binary& binary) {
   default:
     throw CompilationError(binary.op, "unsupported operation");
   }
+}
+
+llvm::Value *CodeGenerator::generate(const Variable& variable) {
+  if (auto it = cur_env_.find(variable.name.lexeme); it != cur_env_.end()) {
+    return it->second;
+  }
+  throw CompilationError(variable.name, "could not resolve variable");
 }
 
 llvm::Value *CodeGenerator::generate(const Literal& literal) {

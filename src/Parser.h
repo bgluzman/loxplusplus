@@ -24,7 +24,6 @@ private:
 
   std::unique_ptr<Expr> expression();
 
-  // std::unique_ptr<Expr> plus();
   std::unique_ptr<Expr> equality();
   std::unique_ptr<Expr> comparison();
   std::unique_ptr<Expr> term();

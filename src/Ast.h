@@ -13,6 +13,11 @@ namespace loxpp {
 struct Expr;
 struct Stmt;
 
+struct Variable {
+  Token name;
+};
+std::ostream& operator<<(std::ostream& os, const Variable& variable);
+
 struct Unary {
   Token                 op;
   std::unique_ptr<Expr> operand;
@@ -27,7 +32,7 @@ struct Binary {
 std::ostream& operator<<(std::ostream& os, const Binary& binary);
 
 struct Expr {
-  using Value = std::variant<Literal, Unary, Binary>;
+  using Value = std::variant<Literal, Variable, Unary, Binary>;
   Value value;
 };
 std::ostream& operator<<(std::ostream& os, const Expr& expr);

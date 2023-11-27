@@ -143,11 +143,15 @@ std::unique_ptr<Expr> Parser::unary() {
 }
 
 std::unique_ptr<Expr> Parser::primary() {
-  // TODO (bgluzman): STUB! REPLACE!!
-  if (match({TokenType::NUMBER})) {
-    // TODO (bgluzman): more error checking here?
+  // TODO (bgluzman): support for string literals
+  // TODO (bgluzman): (longer-term) support for other number literals
+  if (match({TokenType::NUMBER}))
+    // Deref safe because of `match()`.
     return std::make_unique<Expr>(*scanner_.previous()->literal);
-  }
+
+  if (match({TokenType::IDENTIFIER}))
+    // Deref safe because of `match()`.
+    return std::make_unique<Expr>(Variable{.name = *scanner_.previous()});
 
   // TODO (bgluzman): should we break this into a helper function?
   int line = scanner_.previous()
