@@ -3,7 +3,6 @@
 #include "CompilationError.h"
 
 #include <cassert>
-#include <charconv>
 #include <unordered_map>
 
 namespace loxpp {
