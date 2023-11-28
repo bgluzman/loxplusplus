@@ -1,7 +1,6 @@
 #include "CodeGenerator.h"
 #include "Parser.h"
 #include "Scanner.h"
-#include "Token.h"
 
 #include <iostream>
 #include <sstream>
