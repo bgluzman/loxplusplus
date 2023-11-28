@@ -11,9 +11,9 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 add_definitions(${LLVM_DEFINITIONS})
 llvm_map_components_to_libnames(llvm_libs support core)
 
-add_executable(
-        lox++
-        src/main.cpp
+add_library(
+        loxplusplus_core
+        OBJECT
         src/Scanner.cpp
         src/Scanner.h
         src/Token.cpp
@@ -31,5 +31,13 @@ add_executable(
         src/CodeGenerator.cpp
         src/CodeGenerator.h
 )
-target_include_directories(lox++ PRIVATE ${LLVM_INCLUDE_DIRS})
-target_link_libraries(lox++ PRIVATE ${llvm_libs})
+target_include_directories(loxplusplus_core PUBLIC ${LLVM_INCLUDE_DIRS})
+target_link_libraries(loxplusplus_core PUBLIC ${llvm_libs})
+
+function(add_lox_executable executable_name main_file)
+    add_executable(${executable_name} ${main_file})
+    target_link_libraries(${executable_name} PRIVATE loxplusplus_core)
+endfunction()
+
+add_lox_executable(lox++-dev src/dev.cpp)
+add_lox_executable(lox++ src/main.cpp)
