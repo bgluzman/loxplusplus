@@ -60,6 +60,13 @@ struct Block {
 };
 std::ostream& operator<<(std::ostream& os, const Block& block);
 
+struct If {
+  std::unique_ptr<Expr> cond;
+  std::unique_ptr<Stmt> thenBranch;
+  std::unique_ptr<Stmt> elseBranch;
+};
+std::ostream& operator<<(std::ostream& os, const If& if_);
+
 struct Function {
   Token                 name;
   std::vector<Token>    params;
@@ -74,7 +81,7 @@ struct Return {
 std::ostream& operator<<(std::ostream& os, const Return& return_);
 
 struct Stmt {
-  using Value = std::variant<Expression, Block, Function, Return>;
+  using Value = std::variant<Expression, Block, If, Function, Return>;
   Value value;
 };
 std::ostream& operator<<(std::ostream& os, const Stmt& stmt);

@@ -88,6 +88,28 @@ void CodeGenerator::generate(const Block& block) {
   }
 }
 
+void CodeGenerator::generate(const If& if_) {
+  // TODO (bgluzman): if we make if-statments into expressions, then we will
+  //  need to add the code for phi nodes here...
+  llvm::Function *enclosingScope = builder_->GetInsertBlock()->getParent();
+  llvm::Value    *cond = generate(*if_.cond);
+
+  auto *thenBlock = llvm::BasicBlock::Create(*context_, "then");
+  auto *elseBlock = llvm::BasicBlock::Create(*context_, "else");
+
+  builder_->CreateCondBr(cond, thenBlock, elseBlock);
+
+  // 'then' branch
+  thenBlock->insertInto(enclosingScope);
+  builder_->SetInsertPoint(thenBlock);
+  generate(*if_.thenBranch);
+
+  // 'else' branch
+  elseBlock->insertInto(enclosingScope);
+  builder_->SetInsertPoint(elseBlock);
+  generate(*if_.elseBranch);
+}
+
 void CodeGenerator::generate(const Function& function) {
   // TODO (bgluzman): support all other types...
   std::vector<llvm::Type *> paramTypes(function.params.size(),

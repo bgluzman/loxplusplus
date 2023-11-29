@@ -52,6 +52,9 @@ std::unique_ptr<Stmt> Parser::function() {
 }
 
 std::unique_ptr<Stmt> Parser::statement() {
+  // TODO (bgluzman): other types of statements...
+  if (match({TokenType::IF}))
+    return ifStatement();
   if (match({TokenType::RETURN}))
     return returnStatement();
   if (match({TokenType::LEFT_BRACE}))
@@ -67,6 +70,24 @@ std::unique_ptr<Stmt> Parser::block() {
 
   consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
   return std::make_unique<Stmt>(Block{.stmts = std::move(stmts)});
+}
+
+std::unique_ptr<Stmt> Parser::ifStatement() {
+  consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.");
+  std::unique_ptr<Expr> condition = expression();
+  consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.");
+
+  std::unique_ptr<Stmt> thenBranch = statement();
+  std::unique_ptr<Stmt> elseBranch = nullptr;
+  if (match({TokenType::ELSE})) {
+    elseBranch = statement();
+  }
+
+  return std::make_unique<Stmt>(If{
+      .cond = std::move(condition),
+      .thenBranch = std::move(thenBranch),
+      .elseBranch = std::move(elseBranch),
+  });
 }
 
 std::unique_ptr<Stmt> Parser::returnStatement() {

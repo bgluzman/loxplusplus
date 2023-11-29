@@ -9,8 +9,14 @@ using namespace loxpp;
 
 int main(int /*argc*/, char * /*argv*/[]) {
   std::string source = R"(
-fun test(x) { return (1+2+x)*(x+(1+2)); }
-return test(42);
+fun fib(x) {
+  if (x < 3) {
+    return 1;
+  } else {
+    return fib(x-1) + fib(x-2);
+  }
+}
+return fib(5);
 )";
 
   auto scanner = Scanner::construct(source);

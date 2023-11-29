@@ -58,6 +58,13 @@ std::ostream& operator<<(std::ostream& os, const Block& block) {
   return os << ')';
 }
 
+std::ostream& operator<<(std::ostream& os, const If& if_) {
+  os << "(if (" << if_.cond << ") (" << if_.thenBranch << ")";
+  if (if_.elseBranch)
+    os << " (" << if_.elseBranch << ')';
+  return os << ')';
+}
+
 std::ostream& operator<<(std::ostream& os, const Function& function) {
   os << "(function " << function.name.lexeme << ' ';
   {

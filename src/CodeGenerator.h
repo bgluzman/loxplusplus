@@ -41,6 +41,7 @@ private:
   void generate(const Stmt& stmt);
   void generate(const Expression& expression);
   void generate(const Block& block);
+  void generate(const If& if_);
   void generate(const Function& function);
   void generate(const Return& return_);
 
