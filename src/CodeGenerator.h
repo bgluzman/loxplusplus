@@ -12,8 +12,18 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/PassManager.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/Passes/PassBuilder.h>
+#include <llvm/Passes/StandardInstrumentations.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/Transforms/Scalar/Reassociate.h>
+#include <llvm/Transforms/Scalar/SimplifyCFG.h>
 #include <memory>
 
 namespace loxpp {
@@ -45,6 +55,16 @@ private:
   std::unique_ptr<llvm::LLVMContext> context_;
   std::unique_ptr<llvm::Module>      module_;
   std::unique_ptr<llvm::IRBuilder<>> builder_;
+
+  struct PassManagers {
+    std::unique_ptr<llvm::FunctionPassManager>          fpm;
+    std::unique_ptr<llvm::LoopAnalysisManager>          lam;
+    std::unique_ptr<llvm::FunctionAnalysisManager>      fam;
+    std::unique_ptr<llvm::CGSCCAnalysisManager>         cgam;
+    std::unique_ptr<llvm::ModuleAnalysisManager>        mam;
+    std::unique_ptr<llvm::PassInstrumentationCallbacks> pic;
+    std::unique_ptr<llvm::StandardInstrumentations>     si;
+  } pass_managers_;
 
   // TODO (bgluzman): TOTALLY BROKEN! No lexical scoping supported. Need to
   //  create a proper data-structure with environment nesting.

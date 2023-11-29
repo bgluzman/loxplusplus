@@ -7,17 +7,49 @@ namespace loxpp {
 CodeGenerator::CodeGenerator()
     : context_(std::make_unique<llvm::LLVMContext>()),
       module_(std::make_unique<llvm::Module>("lox++ jit", *context_)),
-      builder_(std::make_unique<llvm::IRBuilder<>>(*context_)) {}
+      builder_(std::make_unique<llvm::IRBuilder<>>(*context_)),
+      pass_managers_({
+          .fpm = std::make_unique<llvm::FunctionPassManager>(),
+          .lam = std::make_unique<llvm::LoopAnalysisManager>(),
+          .fam = std::make_unique<llvm::FunctionAnalysisManager>(),
+          .cgam = std::make_unique<llvm::CGSCCAnalysisManager>(),
+          .mam = std::make_unique<llvm::ModuleAnalysisManager>(),
+          .pic = std::make_unique<llvm::PassInstrumentationCallbacks>(),
+          .si = std::make_unique<llvm ::StandardInstrumentations>(true),
+      }) {
+  // Below is copied directly from LLVM tutorials:
+  //   https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl04.html
+
+  // Register pass callbacks into instrumentation.
+  pass_managers_.si->registerCallbacks(*pass_managers_.pic,
+                                       pass_managers_.fam.get());
+  // Add transform passes.
+  // Do simple "peephole" optimizations and bit-twiddling optzns.
+  pass_managers_.fpm->addPass(llvm::InstCombinePass());
+  // Reassociate expressions.
+  pass_managers_.fpm->addPass(llvm::ReassociatePass());
+  // Eliminate Common SubExpressions.
+  pass_managers_.fpm->addPass(llvm::GVNPass());
+  // Simplify the control flow graph (deleting unreachable blocks, etc).
+  pass_managers_.fpm->addPass(llvm::SimplifyCFGPass());
+
+  // Register analysis passes used in these transform passes.
+  llvm::PassBuilder PB;
+  PB.registerModuleAnalyses(*pass_managers_.mam);
+  PB.registerFunctionAnalyses(*pass_managers_.fam);
+  PB.crossRegisterProxies(*pass_managers_.lam, *pass_managers_.fam,
+                          *pass_managers_.cgam, *pass_managers_.mam);
+}
 
 Expected<void> CodeGenerator::generate(const Ast& ast) {
   // TODO (bgluzman): change this to void or integer type!
   llvm::FunctionType *functionType =
       llvm::FunctionType::get(llvm::Type::getDoubleTy(*context_), false);
-  llvm::Function *function =
+  llvm::Function *toplevel =
       llvm::Function::Create(functionType, llvm::Function::ExternalLinkage,
                              "__toplevel", module_.get());
   llvm::BasicBlock *block =
-      llvm::BasicBlock::Create(*context_, "entry", function);
+      llvm::BasicBlock::Create(*context_, "entry", toplevel);
   builder_->SetInsertPoint(block);
 
   try {
@@ -30,9 +62,10 @@ Expected<void> CodeGenerator::generate(const Ast& ast) {
   }
 
   llvm::raw_ostream *errs = &llvm::errs();
-  if (llvm::verifyFunction(*function, errs)) {
+  if (llvm::verifyFunction(*toplevel, errs)) {
     return std::unexpected(CompilationError(0, "compiling toplevel failed"));
   }
+  pass_managers_.fpm->run(*toplevel, *pass_managers_.fam);
 
   return {};
 }
@@ -90,6 +123,8 @@ void CodeGenerator::generate(const Function& function) {
     throw CompilationError(function.name,
                            "compiling function definition failed");
   }
+
+  pass_managers_.fpm->run(*functionCode, *pass_managers_.fam);
 
   // TODO (bgluzman): tutorial had error-handling which does eraseFromParent(),
   //  do we need that here?
