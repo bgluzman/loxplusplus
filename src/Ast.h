@@ -16,7 +16,6 @@ struct Stmt;
 struct Variable {
   Token name;
 };
-std::ostream& operator<<(std::ostream& os, const Variable& variable);
 
 struct Call {
   // TODO (bgluzman): support arbitrary expr for callee!
@@ -24,72 +23,74 @@ struct Call {
   Token                              paren;  // for error reporting
   std::vector<std::unique_ptr<Expr>> arguments;
 };
-std::ostream& operator<<(std::ostream& os, const Call& call);
 
 struct Unary {
   Token                 op;
   std::unique_ptr<Expr> operand;
 };
-std::ostream& operator<<(std::ostream& os, const Unary& unary);
 
 struct Binary {
   std::unique_ptr<Expr> left;
   Token                 op;
   std::unique_ptr<Expr> right;
 };
-std::ostream& operator<<(std::ostream& os, const Binary& binary);
 
 struct Grouping {
   std::unique_ptr<Expr> expression;
 };
-std::ostream& operator<<(std::ostream& os, const Grouping& grouping);
 
 struct Expr {
   using Value = std::variant<Literal, Variable, Call, Unary, Binary, Grouping>;
   Value value;
 };
-std::ostream& operator<<(std::ostream& os, const Expr& expr);
 
 struct Expression {
   std::unique_ptr<Expr> expr;
 };
-std::ostream& operator<<(std::ostream& os, const Expression& expression);
 
 struct Block {
   std::vector<std::unique_ptr<Stmt>> stmts;
 };
-std::ostream& operator<<(std::ostream& os, const Block& block);
 
 struct If {
   std::unique_ptr<Expr> cond;
   std::unique_ptr<Stmt> thenBranch;
   std::unique_ptr<Stmt> elseBranch;
 };
-std::ostream& operator<<(std::ostream& os, const If& if_);
 
 struct Function {
   Token                 name;
   std::vector<Token>    params;
   std::unique_ptr<Stmt> body;
 };
-std::ostream& operator<<(std::ostream& os, const Function& function);
 
 struct Return {
   Token                 keyword;
   std::unique_ptr<Expr> value;
 };
-std::ostream& operator<<(std::ostream& os, const Return& return_);
 
 struct Stmt {
   using Value = std::variant<Expression, Block, If, Function, Return>;
   Value value;
 };
-std::ostream& operator<<(std::ostream& os, const Stmt& stmt);
 
 struct Ast {
   using Value = std::vector<std::unique_ptr<Stmt>>;
   Value value;
 };
+
 std::ostream& operator<<(std::ostream& os, const Ast& ast);
+std::ostream& operator<<(std::ostream& os, const Variable& variable);
+std::ostream& operator<<(std::ostream& os, const Call& call);
+std::ostream& operator<<(std::ostream& os, const Unary& unary);
+std::ostream& operator<<(std::ostream& os, const Binary& binary);
+std::ostream& operator<<(std::ostream& os, const Grouping& grouping);
+std::ostream& operator<<(std::ostream& os, const Expr& expr);
+std::ostream& operator<<(std::ostream& os, const Expression& expression);
+std::ostream& operator<<(std::ostream& os, const Block& block);
+std::ostream& operator<<(std::ostream& os, const If& if_);
+std::ostream& operator<<(std::ostream& os, const Function& function);
+std::ostream& operator<<(std::ostream& os, const Return& return_);
+std::ostream& operator<<(std::ostream& os, const Stmt& stmt);
 
 }  // namespace loxpp
