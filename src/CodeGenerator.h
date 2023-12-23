@@ -23,7 +23,9 @@
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/Transforms/Scalar/Reassociate.h>
+#include <llvm/Transforms/Scalar/SROA.h>
 #include <llvm/Transforms/Scalar/SimplifyCFG.h>
+#include <llvm/Transforms/Utils.h>
 #include <memory>
 
 namespace loxpp {
@@ -42,6 +44,7 @@ private:
   void generate(const Expression& expression);
   void generate(const Block& block);
   void generate(const If& if_);
+  void generate(const Var& var);
   void generate(const Function& function);
   void generate(const Return& return_);
 
@@ -69,7 +72,7 @@ private:
 
   // TODO (bgluzman): TOTALLY BROKEN! No lexical scoping supported. Need to
   //  create a proper data-structure with environment nesting.
-  std::unordered_map<std::string_view, llvm::Value *> cur_env_ = {};
+  std::unordered_map<std::string_view, llvm::AllocaInst *> cur_env_ = {};
 };
 
 }  // namespace loxpp

@@ -4,6 +4,17 @@
 
 namespace loxpp {
 
+namespace {
+static llvm::AllocaInst *createEntryBlockAlloca(llvm::LLVMContext *context,
+                                                llvm::Function    *function,
+                                                const std::string_view& name) {
+  llvm::IRBuilder<> tmpBlock(&function->getEntryBlock(),
+                             function->getEntryBlock().begin());
+  return tmpBlock.CreateAlloca(llvm::Type::getDoubleTy(*context), nullptr,
+                               name);
+}
+}  // namespace
+
 CodeGenerator::CodeGenerator()
     : context_(std::make_unique<llvm::LLVMContext>()),
       module_(std::make_unique<llvm::Module>("lox++ jit", *context_)),
@@ -24,6 +35,11 @@ CodeGenerator::CodeGenerator()
   pass_managers_.si->registerCallbacks(*pass_managers_.pic,
                                        pass_managers_.fam.get());
   // Add transform passes.
+  // TODO (bgluzman): determine if this really is a replacement for
+  //  PromoteMemoryToRegisterPass, see:
+  //  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/26336
+  // Promote allocas to registers.
+  pass_managers_.fpm->addPass(llvm::SROAPass());
   // Do simple "peephole" optimizations and bit-twiddling optzns.
   pass_managers_.fpm->addPass(llvm::InstCombinePass());
   // Reassociate expressions.
@@ -110,6 +126,10 @@ void CodeGenerator::generate(const If& if_) {
   generate(*if_.elseBranch);
 }
 
+void CodeGenerator::generate(const Var& /*var*/) {
+  // TODO (bgluzman): how do we do things correctly here?
+}
+
 void CodeGenerator::generate(const Function& function) {
   // TODO (bgluzman): support all other types...
   std::vector<llvm::Type *> paramTypes(function.params.size(),
@@ -134,8 +154,12 @@ void CodeGenerator::generate(const Function& function) {
 
   auto surrounding_env = cur_env_;
   argIdx = 0;  // TODO (bgluzman): DRY?
-  for (auto& arg : functionCode->args())
-    cur_env_[function.params[argIdx++].lexeme] = &arg;
+  for (auto& arg : functionCode->args()) {
+    llvm::AllocaInst *slot =
+        createEntryBlockAlloca(context_.get(), functionCode, arg.getName());
+    builder_->CreateStore(&arg, slot);
+    cur_env_[function.params[argIdx++].lexeme] = slot;
+  }
   generate(*function.body);
   cur_env_ = surrounding_env;
 
@@ -236,7 +260,9 @@ llvm::Value *CodeGenerator::generate(const Call& call) {
 
 llvm::Value *CodeGenerator::generate(const Variable& variable) {
   if (auto it = cur_env_.find(variable.name.lexeme); it != cur_env_.end()) {
-    return it->second;
+    llvm::AllocaInst *slot = it->second;
+    return builder_->CreateLoad(slot->getAllocatedType(), slot,
+                                variable.name.lexeme);
   }
   throw CompilationError(variable.name, "could not resolve variable");
 }

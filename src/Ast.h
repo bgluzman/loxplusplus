@@ -58,6 +58,11 @@ struct If {
   std::unique_ptr<Stmt> elseBranch;
 };
 
+struct Var {
+  Token                 name;
+  std::unique_ptr<Expr> initializer;
+};
+
 struct Function {
   Token                 name;
   std::vector<Token>    params;
@@ -70,7 +75,7 @@ struct Return {
 };
 
 struct Stmt {
-  using Value = std::variant<Expression, Block, If, Function, Return>;
+  using Value = std::variant<Expression, Block, If, Var, Function, Return>;
   Value value;
 };
 
@@ -89,6 +94,7 @@ std::ostream& operator<<(std::ostream& os, const Expr& expr);
 std::ostream& operator<<(std::ostream& os, const Expression& expression);
 std::ostream& operator<<(std::ostream& os, const Block& block);
 std::ostream& operator<<(std::ostream& os, const If& if_);
+std::ostream& operator<<(std::ostream& os, const Var& var);
 std::ostream& operator<<(std::ostream& os, const Function& function);
 std::ostream& operator<<(std::ostream& os, const Return& return_);
 std::ostream& operator<<(std::ostream& os, const Stmt& stmt);

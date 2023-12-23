@@ -65,6 +65,13 @@ std::ostream& operator<<(std::ostream& os, const If& if_) {
   return os << ')';
 }
 
+std::ostream& operator<<(std::ostream& os, const Var& var) {
+  os << "(var " << var.name.lexeme;
+  if (var.initializer)
+    os << " " << var.initializer;
+  return os << ')';
+}
+
 std::ostream& operator<<(std::ostream& os, const Function& function) {
   os << "(function " << function.name.lexeme << ' ';
   {

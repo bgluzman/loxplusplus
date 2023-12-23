@@ -24,6 +24,20 @@ std::unique_ptr<Stmt> Parser::declaration() {
   return statement();
 }
 
+std::unique_ptr<Stmt> Parser::varDeclaration() {
+  Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+  std::unique_ptr<Expr> initializer = nullptr;
+  if (match({TokenType::EQUAL})) {
+    initializer = expression();
+  }
+
+  consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+  return std::make_unique<Stmt>(Var{
+      .name = name,
+      .initializer = std::move(initializer),
+  });
+}
+
 std::unique_ptr<Stmt> Parser::function() {
   static constexpr std::string kind = "function";  // TODO (bgluzman): methods
 
